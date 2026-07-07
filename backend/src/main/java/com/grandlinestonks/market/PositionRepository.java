@@ -2,6 +2,8 @@ package com.grandlinestonks.market;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PositionRepository extends JpaRepository<Position, Long> {
@@ -10,5 +12,5 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
 
     List<Position> findByMarketId(Long marketId);
 
-    List<Position> findByUserId(Long userId);
+    Page<Position> findByUserId(Long userId, Pageable pageable);
 }
