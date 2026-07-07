@@ -2,6 +2,8 @@ package com.grandlinestonks.account;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,8 +19,12 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "user_id", unique = true)
     private Long userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountType type;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance;
@@ -29,9 +35,18 @@ public class Account {
     protected Account() {
     }
 
-    public Account(Long userId, BigDecimal balance) {
+    public Account(Long userId, AccountType type, BigDecimal balance) {
         this.userId = userId;
+        this.type = type;
         this.balance = balance;
+    }
+
+    public void credit(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
+    }
+
+    public boolean mayGoNegative() {
+        return type == AccountType.TREASURY;
     }
 
     public Long getId() {
@@ -40,6 +55,10 @@ public class Account {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public AccountType getType() {
+        return type;
     }
 
     public BigDecimal getBalance() {
