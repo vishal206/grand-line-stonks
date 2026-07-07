@@ -31,4 +31,28 @@ public class ApiExceptionHandler {
     public ApiError handleInvalidCredentials(InvalidCredentialsException e) {
         return ApiError.of("INVALID_CREDENTIALS", e.getMessage());
     }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ApiError handleInsufficientBalance(InsufficientBalanceException e) {
+        return ApiError.of("INSUFFICIENT_BALANCE", e.getMessage());
+    }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleAccountNotFound(AccountNotFoundException e) {
+        return ApiError.of("ACCOUNT_NOT_FOUND", e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTransferException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleInvalidTransfer(InvalidTransferException e) {
+        return ApiError.of("INVALID_TRANSFER", e.getMessage());
+    }
+
+    @ExceptionHandler(UnbalancedTransactionException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleUnbalancedTransaction(UnbalancedTransactionException e) {
+        return ApiError.of("UNBALANCED_TRANSACTION", e.getMessage());
+    }
 }
