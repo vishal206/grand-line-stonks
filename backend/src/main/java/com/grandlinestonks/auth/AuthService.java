@@ -2,13 +2,20 @@ package com.grandlinestonks.auth;
 
 import com.grandlinestonks.account.Account;
 import com.grandlinestonks.account.AccountRepository;
+import com.grandlinestonks.account.AccountType;
 import com.grandlinestonks.auth.dto.AuthResponse;
 import com.grandlinestonks.auth.dto.MeResponse;
 import com.grandlinestonks.common.Berries;
+import com.grandlinestonks.error.AccountNotFoundException;
 import com.grandlinestonks.error.InvalidCredentialsException;
 import com.grandlinestonks.error.UsernameTakenException;
+import com.grandlinestonks.ledger.EntrySpec;
+import com.grandlinestonks.ledger.LedgerService;
+import com.grandlinestonks.ledger.TransactionType;
 import com.grandlinestonks.user.User;
 import com.grandlinestonks.user.UserRepository;
+import java.math.BigDecimal;
+import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,16 +27,19 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final LedgerService ledgerService;
 
     public AuthService(
             UserRepository userRepository,
             AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
+            JwtService jwtService,
+            LedgerService ledgerService) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.ledgerService = ledgerService;
     }
 
     @Transactional
@@ -38,7 +48,13 @@ public class AuthService {
             throw new UsernameTakenException(username);
         }
         User user = userRepository.save(new User(username, passwordEncoder.encode(password)));
-        accountRepository.save(new Account(user.getId(), Berries.STARTING_BERRIES));
+        Account account = accountRepository.save(
+                new Account(user.getId(), AccountType.USER, BigDecimal.ZERO));
+        Account treasury = accountRepository.findByType(AccountType.TREASURY)
+                .orElseThrow(() -> new AccountNotFoundException("treasury"));
+        ledgerService.record(TransactionType.MINT, null, List.of(
+                new EntrySpec(treasury.getId(), Berries.STARTING_BERRIES.negate()),
+                new EntrySpec(account.getId(), Berries.STARTING_BERRIES)));
         return new AuthResponse(jwtService.issueToken(user.getId(), user.getUsername()));
     }
 
