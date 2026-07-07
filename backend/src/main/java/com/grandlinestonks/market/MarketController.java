@@ -6,6 +6,7 @@ import com.grandlinestonks.market.dto.BetResponse;
 import com.grandlinestonks.market.dto.CreateMarketRequest;
 import com.grandlinestonks.market.dto.MarketResponse;
 import com.grandlinestonks.market.dto.PricePointResponse;
+import com.grandlinestonks.market.dto.ResolveRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -25,10 +26,15 @@ public class MarketController {
 
     private final MarketService marketService;
     private final BetService betService;
+    private final SettlementService settlementService;
 
-    public MarketController(MarketService marketService, BetService betService) {
+    public MarketController(
+            MarketService marketService,
+            BetService betService,
+            SettlementService settlementService) {
         this.marketService = marketService;
         this.betService = betService;
+        this.settlementService = settlementService;
     }
 
     @PostMapping
@@ -43,6 +49,32 @@ public class MarketController {
     public MarketResponse open(
             @AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
         return marketService.open(user.userId(), id);
+    }
+
+    @PostMapping("/{id}/close")
+    public MarketResponse close(
+            @AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
+        return marketService.close(user.userId(), id);
+    }
+
+    @PostMapping("/{id}/resolve")
+    public MarketResponse resolve(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable Long id,
+            @Valid @RequestBody ResolveRequest request) {
+        return settlementService.resolve(user.userId(), id, request.winningOutcomeId());
+    }
+
+    @PostMapping("/{id}/settle")
+    public MarketResponse settle(
+            @AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
+        return settlementService.settle(user.userId(), id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public MarketResponse cancel(
+            @AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
+        return settlementService.cancel(user.userId(), id);
     }
 
     @GetMapping
