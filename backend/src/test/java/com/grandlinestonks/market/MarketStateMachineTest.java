@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.grandlinestonks.error.IllegalMarketTransitionException;
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class MarketStateMachineTest {
@@ -50,6 +51,24 @@ class MarketStateMachineTest {
     @Test
     void selfTransitionIsRejected() {
         assertThatThrownBy(() -> stateMachine.transition(marketIn(MarketStatus.OPEN), MarketStatus.OPEN))
+                .isInstanceOf(IllegalMarketTransitionException.class);
+    }
+
+    @Test
+    void cancellationIsLegalOnlyBeforeResolution() {
+        for (MarketStatus from : List.of(MarketStatus.DRAFT, MarketStatus.OPEN, MarketStatus.CLOSED)) {
+            Market market = marketIn(from);
+            stateMachine.transition(market, MarketStatus.CANCELLED);
+            assertThat(market.getStatus()).isEqualTo(MarketStatus.CANCELLED);
+        }
+        assertThatThrownBy(() -> stateMachine.transition(
+                marketIn(MarketStatus.RESOLVED), MarketStatus.CANCELLED))
+                .isInstanceOf(IllegalMarketTransitionException.class);
+        assertThatThrownBy(() -> stateMachine.transition(
+                marketIn(MarketStatus.SETTLED), MarketStatus.CANCELLED))
+                .isInstanceOf(IllegalMarketTransitionException.class);
+        assertThatThrownBy(() -> stateMachine.transition(
+                marketIn(MarketStatus.CANCELLED), MarketStatus.OPEN))
                 .isInstanceOf(IllegalMarketTransitionException.class);
     }
 
