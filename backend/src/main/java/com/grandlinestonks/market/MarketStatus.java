@@ -5,5 +5,6 @@ public enum MarketStatus {
     OPEN,
     CLOSED,
     RESOLVED,
-    SETTLED
+    SETTLED,
+    CANCELLED
 }

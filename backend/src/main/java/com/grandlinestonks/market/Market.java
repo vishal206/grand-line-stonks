@@ -35,6 +35,9 @@ public class Market {
     @Column(name = "market_maker_account_id", unique = true)
     private Long marketMakerAccountId;
 
+    @Column(name = "winning_outcome_id")
+    private Long winningOutcomeId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -54,6 +57,10 @@ public class Market {
 
     public void attachMarketMakerAccount(Long accountId) {
         this.marketMakerAccountId = accountId;
+    }
+
+    public void setWinningOutcome(Long outcomeId) {
+        this.winningOutcomeId = outcomeId;
     }
 
     public Long getId() {
@@ -78,6 +85,10 @@ public class Market {
 
     public Long getMarketMakerAccountId() {
         return marketMakerAccountId;
+    }
+
+    public Long getWinningOutcomeId() {
+        return winningOutcomeId;
     }
 
     public Instant getCreatedAt() {

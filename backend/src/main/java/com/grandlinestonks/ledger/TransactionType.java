@@ -4,5 +4,7 @@ public enum TransactionType {
     MINT,
     TRANSFER,
     SUBSIDY,
-    BET
+    BET,
+    SETTLEMENT,
+    REFUND
 }

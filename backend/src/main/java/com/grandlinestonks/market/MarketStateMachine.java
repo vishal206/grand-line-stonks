@@ -9,11 +9,12 @@ import org.springframework.stereotype.Component;
 public class MarketStateMachine {
 
     private static final Map<MarketStatus, Set<MarketStatus>> LEGAL_TRANSITIONS = Map.of(
-            MarketStatus.DRAFT, Set.of(MarketStatus.OPEN),
-            MarketStatus.OPEN, Set.of(MarketStatus.CLOSED),
-            MarketStatus.CLOSED, Set.of(MarketStatus.RESOLVED),
+            MarketStatus.DRAFT, Set.of(MarketStatus.OPEN, MarketStatus.CANCELLED),
+            MarketStatus.OPEN, Set.of(MarketStatus.CLOSED, MarketStatus.CANCELLED),
+            MarketStatus.CLOSED, Set.of(MarketStatus.RESOLVED, MarketStatus.CANCELLED),
             MarketStatus.RESOLVED, Set.of(MarketStatus.SETTLED),
-            MarketStatus.SETTLED, Set.of());
+            MarketStatus.SETTLED, Set.of(),
+            MarketStatus.CANCELLED, Set.of());
 
     public void transition(Market market, MarketStatus target) {
         Set<MarketStatus> allowed = LEGAL_TRANSITIONS.get(market.getStatus());
