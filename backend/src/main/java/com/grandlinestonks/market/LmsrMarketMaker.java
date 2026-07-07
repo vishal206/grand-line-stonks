@@ -7,6 +7,8 @@ import java.util.List;
 
 public final class LmsrMarketMaker {
 
+    private static final double MAX_SPEND_TO_LIQUIDITY_RATIO = 500;
+
     private final double b;
 
     public LmsrMarketMaker(BigDecimal liquidity) {
@@ -66,6 +68,36 @@ public final class LmsrMarketMaker {
 
     public static BigDecimal roundCharge(double exactCost) {
         return BigDecimal.valueOf(exactCost).setScale(Berries.SCALE, Berries.CHARGE_ROUNDING);
+    }
+
+    public BigDecimal maxLoss(int outcomeCount) {
+        if (outcomeCount < 2) {
+            throw new IllegalArgumentException("a market needs at least two outcomes");
+        }
+        return roundCharge(b * Math.log(outcomeCount));
+    }
+
+    public BigDecimal sharesForSpend(List<BigDecimal> quantities, int outcomeIndex, BigDecimal spend) {
+        requireOutcomes(quantities);
+        if (outcomeIndex < 0 || outcomeIndex >= quantities.size()) {
+            throw new IllegalArgumentException("outcome index out of range: " + outcomeIndex);
+        }
+        if (spend == null || spend.signum() <= 0) {
+            throw new IllegalArgumentException("spend must be positive");
+        }
+        double scaledSpend = spend.doubleValue() / b;
+        if (scaledSpend > MAX_SPEND_TO_LIQUIDITY_RATIO) {
+            throw new IllegalArgumentException("spend too large relative to market liquidity");
+        }
+        double[] scaled = scaledQuantities(quantities);
+        double max = max(scaled);
+        double sum = 0;
+        for (double value : scaled) {
+            sum += Math.exp(value - max);
+        }
+        double sumOthers = sum - Math.exp(scaled[outcomeIndex] - max);
+        double delta = b * (max + Math.log(sum * Math.exp(scaledSpend) - sumOthers) - scaled[outcomeIndex]);
+        return BigDecimal.valueOf(delta).setScale(Berries.SCALE, Berries.SHARE_ROUNDING);
     }
 
     private double[] scaledQuantities(List<BigDecimal> quantities) {
