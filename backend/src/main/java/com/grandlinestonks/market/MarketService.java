@@ -59,9 +59,7 @@ public class MarketService {
     @Transactional
     public MarketResponse open(Long userId, Long marketId) {
         Market market = lockMarket(marketId);
-        if (!market.getCreatedBy().equals(userId)) {
-            throw new NotMarketOwnerException(marketId);
-        }
+        requireOwner(market, userId);
         stateMachine.transition(market, MarketStatus.OPEN);
         List<MarketOutcome> outcomes = outcomeRepository.findByMarketIdOrderByIdx(marketId);
         Account marketMaker = accountRepository.save(
@@ -69,6 +67,24 @@ public class MarketService {
         market.attachMarketMakerAccount(marketMaker.getId());
         fundSubsidy(market, marketMaker, outcomes.size());
         return toResponse(market, outcomes);
+    }
+
+    @Transactional
+    public MarketResponse close(Long userId, Long marketId) {
+        Market market = lockMarket(marketId);
+        requireOwner(market, userId);
+        stateMachine.transition(market, MarketStatus.CLOSED);
+        return toResponse(market, outcomeRepository.findByMarketIdOrderByIdx(marketId));
+    }
+
+    void requireOwner(Market market, Long userId) {
+        if (!market.getCreatedBy().equals(userId)) {
+            throw new NotMarketOwnerException(market.getId());
+        }
+    }
+
+    MarketResponse toDto(Market market) {
+        return toResponse(market, outcomeRepository.findByMarketIdOrderByIdx(market.getId()));
     }
 
     @Transactional(readOnly = true)
@@ -126,6 +142,7 @@ public class MarketService {
         }
         return new MarketResponse(
                 market.getId(), market.getQuestion(), market.getStatus(), market.getLiquidity(),
-                market.getCreatedBy(), market.getCreatedAt(), outcomeResponses);
+                market.getCreatedBy(), market.getCreatedAt(), market.getWinningOutcomeId(),
+                outcomeResponses);
     }
 }

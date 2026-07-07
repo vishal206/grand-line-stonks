@@ -12,5 +12,6 @@ public record MarketResponse(
         BigDecimal liquidity,
         Long createdBy,
         Instant createdAt,
+        Long winningOutcomeId,
         List<OutcomeResponse> outcomes) {
 }
