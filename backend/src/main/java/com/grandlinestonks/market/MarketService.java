@@ -16,6 +16,8 @@ import com.grandlinestonks.market.dto.PricePointResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,14 +97,12 @@ public class MarketService {
     }
 
     @Transactional(readOnly = true)
-    public List<MarketResponse> list(MarketStatus status) {
-        List<Market> markets = status == null
-                ? marketRepository.findAll()
-                : marketRepository.findByStatusOrderByCreatedAtDesc(status);
-        return markets.stream()
-                .map(market -> toResponse(
-                        market, outcomeRepository.findByMarketIdOrderByIdx(market.getId())))
-                .toList();
+    public Page<MarketResponse> list(MarketStatus status, Pageable pageable) {
+        Page<Market> markets = status == null
+                ? marketRepository.findAll(pageable)
+                : marketRepository.findByStatus(status, pageable);
+        return markets.map(market -> toResponse(
+                market, outcomeRepository.findByMarketIdOrderByIdx(market.getId())));
     }
 
     @Transactional(readOnly = true)

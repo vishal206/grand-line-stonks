@@ -9,6 +9,10 @@ import com.grandlinestonks.market.dto.PricePointResponse;
 import com.grandlinestonks.market.dto.ResolveRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,8 +82,11 @@ public class MarketController {
     }
 
     @GetMapping
-    public List<MarketResponse> list(@RequestParam(required = false) MarketStatus status) {
-        return marketService.list(status);
+    public Page<MarketResponse> list(
+            @RequestParam(required = false) MarketStatus status,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return marketService.list(status, pageable);
     }
 
     @GetMapping("/{id}")
