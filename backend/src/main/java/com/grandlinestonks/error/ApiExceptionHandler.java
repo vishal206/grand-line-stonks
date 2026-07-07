@@ -55,4 +55,28 @@ public class ApiExceptionHandler {
     public ApiError handleUnbalancedTransaction(UnbalancedTransactionException e) {
         return ApiError.of("UNBALANCED_TRANSACTION", e.getMessage());
     }
+
+    @ExceptionHandler(MarketNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleMarketNotFound(MarketNotFoundException e) {
+        return ApiError.of("MARKET_NOT_FOUND", e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalMarketTransitionException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleIllegalTransition(IllegalMarketTransitionException e) {
+        return ApiError.of("ILLEGAL_MARKET_TRANSITION", e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBetException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ApiError handleInvalidBet(InvalidBetException e) {
+        return ApiError.of("INVALID_BET", e.getMessage());
+    }
+
+    @ExceptionHandler(NotMarketOwnerException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError handleNotMarketOwner(NotMarketOwnerException e) {
+        return ApiError.of("NOT_MARKET_OWNER", e.getMessage());
+    }
 }
