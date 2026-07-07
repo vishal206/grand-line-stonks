@@ -129,6 +129,42 @@ class LmsrMarketMakerTest {
     }
 
     @Test
+    void sharesForSpendInvertsTheCostFunction() {
+        Random random = new Random(11);
+        BigDecimal roundingUnit = BigDecimal.ONE.movePointLeft(Berries.SCALE);
+        for (int i = 0; i < 200; i++) {
+            List<BigDecimal> quantities = quantities(
+                    String.valueOf(random.nextInt(500)),
+                    String.valueOf(random.nextInt(500)),
+                    String.valueOf(random.nextInt(500)));
+            int outcome = random.nextInt(3);
+            BigDecimal spend = BigDecimal.valueOf(1 + random.nextInt(10000), 2);
+            BigDecimal shares = maker.sharesForSpend(quantities, outcome, spend);
+            assertThat(shares).isGreaterThan(BigDecimal.ZERO);
+            double exactCost = maker.exactCostToBuy(quantities, outcome, shares);
+            assertThat(exactCost).isLessThanOrEqualTo(spend.doubleValue() + 1e-9);
+            double costOfOneMoreUnit = maker.exactCostToBuy(
+                    quantities, outcome, shares.add(roundingUnit));
+            assertThat(costOfOneMoreUnit).isGreaterThan(spend.doubleValue() - 1e-6);
+        }
+    }
+
+    @Test
+    void maxLossMatchesLiquidityTimesLogOutcomes() {
+        assertThat(maker.maxLoss(2))
+                .isEqualByComparingTo(BigDecimal.valueOf(100 * Math.log(2))
+                        .setScale(Berries.SCALE, Berries.CHARGE_ROUNDING));
+        assertThat(maker.maxLoss(4)).isGreaterThan(maker.maxLoss(2));
+    }
+
+    @Test
+    void oversizedSpendRelativeToLiquidityIsRejected() {
+        assertThatThrownBy(() -> maker.sharesForSpend(
+                quantities("0", "0"), 0, new BigDecimal("60000")))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void invalidInputsAreRejected() {
         assertThatThrownBy(() -> new LmsrMarketMaker(BigDecimal.ZERO))
                 .isInstanceOf(IllegalArgumentException.class);
