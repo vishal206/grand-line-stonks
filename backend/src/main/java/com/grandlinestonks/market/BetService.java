@@ -10,6 +10,9 @@ import com.grandlinestonks.ledger.LedgerTransaction;
 import com.grandlinestonks.ledger.TransactionType;
 import com.grandlinestonks.market.dto.BetRequest;
 import com.grandlinestonks.market.dto.BetResponse;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,8 @@ public class BetService {
     private final AccountRepository accountRepository;
     private final LedgerService ledgerService;
     private final MarketStateMachine stateMachine;
+    private final Timer betTimer;
+    private final Counter betCounter;
 
     public BetService(
             MarketService marketService,
@@ -34,7 +39,8 @@ public class BetService {
             BetRepository betRepository,
             AccountRepository accountRepository,
             LedgerService ledgerService,
-            MarketStateMachine stateMachine) {
+            MarketStateMachine stateMachine,
+            MeterRegistry meterRegistry) {
         this.marketService = marketService;
         this.outcomeRepository = outcomeRepository;
         this.positionRepository = positionRepository;
@@ -42,10 +48,23 @@ public class BetService {
         this.accountRepository = accountRepository;
         this.ledgerService = ledgerService;
         this.stateMachine = stateMachine;
+        this.betTimer = Timer.builder("bets.latency").register(meterRegistry);
+        this.betCounter = Counter.builder("bets.placed").register(meterRegistry);
     }
 
     @Transactional
     public BetResponse placeBet(Long userId, Long marketId, BetRequest request) {
+        Timer.Sample sample = Timer.start();
+        try {
+            BetResponse response = doPlaceBet(userId, marketId, request);
+            betCounter.increment();
+            return response;
+        } finally {
+            sample.stop(betTimer);
+        }
+    }
+
+    private BetResponse doPlaceBet(Long userId, Long marketId, BetRequest request) {
         Market market = marketService.lockMarket(marketId);
         Optional<BetResponse> replay = findReplay(marketId, request.idempotencyKey());
         if (replay.isPresent()) {
