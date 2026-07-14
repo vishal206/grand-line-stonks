@@ -12,18 +12,16 @@ export default function Nav() {
     <nav className="border-b border-violet-100 bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-6">
-          <Link href="/markets" className="text-lg font-bold text-violet-700">
+          <Link href="/" className="text-lg font-bold text-violet-700">
             Grand Line Stonks
           </Link>
+          <Link href="/" className="text-sm text-gray-600 hover:text-violet-700">
+            Markets
+          </Link>
           {me && (
-            <>
-              <Link href="/markets" className="text-sm text-gray-600 hover:text-violet-700">
-                Markets
-              </Link>
-              <Link href="/portfolio" className="text-sm text-gray-600 hover:text-violet-700">
-                Portfolio
-              </Link>
-            </>
+            <Link href="/portfolio" className="text-sm text-gray-600 hover:text-violet-700">
+              Portfolio
+            </Link>
           )}
         </div>
         {me ? (

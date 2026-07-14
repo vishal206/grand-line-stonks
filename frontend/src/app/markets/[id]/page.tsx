@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
-import { RequireAuth } from "@/lib/auth";
 import type { MarketResponse, PricePointResponse } from "@/lib/types";
 import BetForm from "@/components/BetForm";
 import PriceChart from "@/components/PriceChart";
@@ -61,9 +60,5 @@ function MarketDetail() {
 }
 
 export default function MarketDetailPage() {
-  return (
-    <RequireAuth>
-      <MarketDetail />
-    </RequireAuth>
-  );
+  return <MarketDetail />;
 }

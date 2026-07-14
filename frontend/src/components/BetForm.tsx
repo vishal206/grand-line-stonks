@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +24,7 @@ interface BetFormProps {
 }
 
 export default function BetForm({ market, onPlaced }: BetFormProps) {
-  const { refreshMe } = useAuth();
+  const { me, loading, refreshMe } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const [lastBet, setLastBet] = useState<BetResponse | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
@@ -50,6 +51,27 @@ export default function BetForm({ market, onPlaced }: BetFormProps) {
       setServerError(e instanceof ApiError ? e.message : "something went wrong");
     }
   });
+
+  if (!loading && !me) {
+    return (
+      <div className="rounded-lg border border-violet-100 bg-white p-4 shadow-sm">
+        <h3 className="mb-3 font-semibold text-gray-900">Place a bet</h3>
+        <p className="mb-3 text-sm text-gray-600">Log in to bet on this market.</p>
+        <Link
+          href="/login"
+          className="block w-full rounded bg-violet-600 py-2 text-center text-sm font-medium text-white hover:bg-violet-700"
+        >
+          Log in
+        </Link>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          New here?{" "}
+          <Link href="/signup" className="text-violet-700 hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form
