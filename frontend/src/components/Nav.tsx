@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { BerryAmount } from "@/components/Berry";
+import { Berry } from "@/components/Berry";
+import CountUp from "@/components/fx/CountUp";
 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -12,7 +13,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`text-sm ${active ? "font-medium text-violet" : "text-ink/70 hover:text-violet"}`}
+      className={`text-sm transition-colors ${active ? "font-medium text-violet" : "text-ink/70 hover:text-violet"}`}
     >
       {label}
     </Link>
@@ -36,13 +37,23 @@ export default function Nav() {
         {me ? (
           <div className="flex items-center gap-5">
             <span className="text-sm text-ink/70">{me.username}</span>
-            <BerryAmount value={me.balance} className="text-sm font-bold text-violet" />
+            <span className="inline-flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="inline-block h-1.5 w-1.5 animate-pulse-dot rounded-full bg-pink"
+              />
+              <span className="inline-flex items-baseline gap-[0.15em] font-mono text-sm font-bold text-violet">
+                <Berry />
+                <CountUp value={me.balance} decimals={2} />
+                <span className="sr-only">berries</span>
+              </span>
+            </span>
             <button
               onClick={() => {
                 logout();
                 router.push("/login");
               }}
-              className="border border-ink/20 px-3 py-1.5 text-sm text-ink/70 hover:border-violet hover:text-violet"
+              className="border border-ink/20 px-3 py-1.5 text-sm text-ink/70 transition-colors hover:border-violet hover:text-violet"
             >
               Log out
             </button>
@@ -54,7 +65,7 @@ export default function Nav() {
             </Link>
             <Link
               href="/signup"
-              className="bg-violet-vivid px-4 py-1.5 text-sm text-paper hover:bg-violet"
+              className="bg-violet-vivid px-4 py-1.5 text-sm text-paper transition-all hover:bg-violet hover:shadow-glow-sm"
             >
               Sign up
             </Link>
