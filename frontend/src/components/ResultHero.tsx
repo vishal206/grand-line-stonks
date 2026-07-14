@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { BerryAmount } from "@/components/Berry";
 import Smoke from "@/components/Smoke";
+import SpeedLines from "@/components/fx/SpeedLines";
 import type { MarketResponse, Page, PositionResponse } from "@/lib/types";
 
 const fullBleed = "relative left-1/2 w-screen -translate-x-1/2 overflow-hidden";
@@ -66,8 +67,11 @@ export default function ResultHero({ market }: { market: MarketResponse }) {
   }
 
   return (
-    <div className={`${fullBleed} mb-10 bg-violet px-6 py-20 text-center text-paper`}>
+    <div className={`${fullBleed} mb-10 bg-cel-gradient px-6 py-20 text-center text-paper`}>
       <Smoke className="opacity-20" />
+      <div className="absolute inset-0 text-paper opacity-15">
+        <SpeedLines />
+      </div>
       <div className="relative">
         <p className="font-serif text-xs uppercase tracking-caps text-paper/70">
           Bounty collected{winningOutcome ? ` · ${winningOutcome.label}` : ""}
