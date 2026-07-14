@@ -7,20 +7,28 @@ import ProbabilityBar from "@/components/ProbabilityBar";
 function MarketList() {
   const { markets, error } = useLiveMarkets("OPEN");
 
-  if (error) return <p className="text-sm text-red-600">{error}</p>;
-  if (!markets) return <p className="text-sm text-gray-500">Loading markets…</p>;
+  if (error) return <p className="text-sm text-negative">{error}</p>;
+  if (!markets) return <p className="text-sm text-ink/60">Loading markets…</p>;
   if (markets.length === 0)
-    return <p className="text-sm text-gray-500">No open markets right now.</p>;
+    return <p className="text-sm text-ink/60">No open markets right now.</p>;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-5 sm:grid-cols-2">
       {markets.map((market) => (
         <Link
           key={market.id}
           href={`/markets/${market.id}`}
-          className="rounded-lg border border-violet-100 bg-white p-4 shadow-sm transition hover:border-violet-300"
+          className="border border-ink/10 bg-white p-5 transition-colors hover:border-violet-vivid"
         >
-          <h2 className="mb-3 font-medium text-gray-900">{market.question}</h2>
+          <div className="mb-2 flex items-baseline justify-between">
+            <span className="font-serif text-[11px] uppercase tracking-caps text-violet">
+              Bounty Nº {market.id}
+            </span>
+            <span className="font-serif text-[11px] uppercase tracking-caps text-ink/50">
+              {market.status}
+            </span>
+          </div>
+          <h2 className="mb-4 font-medium leading-snug text-ink">{market.question}</h2>
           <ProbabilityBar outcomes={market.outcomes} />
         </Link>
       ))}
@@ -31,7 +39,10 @@ function MarketList() {
 export default function MarketsPage() {
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Open markets</h1>
+      <div className="mb-8">
+        <p className="font-serif text-xs uppercase tracking-caps text-ink/50">The bounty board</p>
+        <h1 className="mt-1 text-2xl font-semibold text-ink">Open markets</h1>
+      </div>
       <MarketList />
     </>
   );
