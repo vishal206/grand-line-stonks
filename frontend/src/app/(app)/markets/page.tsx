@@ -3,14 +3,19 @@
 import Link from "next/link";
 import { useLiveMarkets } from "@/lib/live";
 import ProbabilityBar from "@/components/ProbabilityBar";
+import Loading from "@/components/Loading";
 
 function MarketList() {
   const { markets, error } = useLiveMarkets("OPEN");
 
   if (error) return <p className="text-sm text-negative">{error}</p>;
-  if (!markets) return <p className="text-sm text-ink/60">Loading markets…</p>;
+  if (!markets) return <Loading label="Scanning the horizon" />;
   if (markets.length === 0)
-    return <p className="text-sm text-ink/60">No open markets right now.</p>;
+    return (
+      <p className="py-10 text-center font-serif text-xs uppercase tracking-caps text-ink/50">
+        No open bounties yet — the board is bare
+      </p>
+    );
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">

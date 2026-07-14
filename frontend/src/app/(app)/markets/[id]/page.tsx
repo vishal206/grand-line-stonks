@@ -6,13 +6,14 @@ import BetForm from "@/components/BetForm";
 import PriceChart from "@/components/PriceChart";
 import ProbabilityBar from "@/components/ProbabilityBar";
 import ResultHero from "@/components/ResultHero";
+import Loading from "@/components/Loading";
 
 function MarketDetail() {
   const params = useParams<{ id: string }>();
   const { market, history, error, refresh } = useLiveMarket(params.id);
 
   if (error) return <p className="text-sm text-negative">{error}</p>;
-  if (!market) return <p className="text-sm text-ink/60">Loading market…</p>;
+  if (!market) return <Loading label="Charting this bounty" />;
 
   return (
     <div>
