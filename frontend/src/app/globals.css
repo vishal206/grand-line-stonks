@@ -7,6 +7,27 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid #6d28d9;
+  outline: 2px solid #7c3aed;
   outline-offset: 2px;
+}
+
+.halftone {
+  background-image: radial-gradient(rgba(167, 139, 250, 0.4) 1px, transparent 1.5px);
+  background-size: 13px 13px;
+}
+
+.halftone-dense {
+  background-image: radial-gradient(rgba(167, 139, 250, 0.3) 1.5px, transparent 2px);
+  background-size: 9px 9px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-pulse-dot,
+  .animate-drift,
+  .animate-drift-slow {
+    animation: none;
+  }
 }

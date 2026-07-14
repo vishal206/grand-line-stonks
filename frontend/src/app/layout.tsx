@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Fraunces, Inter, Space_Mono } from "next/font/google";
+import { Archivo_Black, Bungee, Fraunces, Inter, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 
@@ -7,6 +7,11 @@ const display = Archivo_Black({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-display",
+});
+const impact = Bungee({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-impact",
 });
 const serif = Fraunces({
   subsets: ["latin"],
@@ -34,7 +39,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${serif.variable} ${sans.variable} ${mono.variable}`}>
+      <body
+        className={`${display.variable} ${impact.variable} ${serif.variable} ${sans.variable} ${mono.variable}`}
+      >
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
