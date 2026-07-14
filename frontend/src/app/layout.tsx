@@ -1,23 +1,31 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Archivo_Black, Fraunces, Inter, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import Nav from "@/components/Nav";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const display = Archivo_Black({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-display",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const serif = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+const mono = Space_Mono({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
   title: "Grand Line Stonks",
-  description: "A One Piece flavored prediction market",
+  description: "A play-money prediction market for the Grand Line",
 };
 
 export default function RootLayout({
@@ -27,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${display.variable} ${serif.variable} ${sans.variable} ${mono.variable}`}>
         <AuthProvider>
           <Nav />
           <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>

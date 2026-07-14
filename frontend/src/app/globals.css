@@ -2,13 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  @apply bg-paper font-sans text-ink antialiased;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+:focus-visible {
+  outline: 2px solid #6d28d9;
+  outline-offset: 2px;
 }
