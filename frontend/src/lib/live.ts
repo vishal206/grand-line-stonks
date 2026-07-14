@@ -22,21 +22,21 @@ function usePoll(load: () => Promise<void>) {
   }, [load]);
 }
 
-export function useLiveMarkets(status: string) {
+export function useLiveMarkets(status: string, sort: "asc" | "desc" = "desc") {
   const [markets, setMarkets] = useState<MarketResponse[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       const page = await apiFetch<Page<MarketResponse>>(
-        `/api/markets?status=${status}&size=50`,
+        `/api/markets?status=${status}&size=50&sort=createdAt,${sort}`,
       );
       setMarkets(page.content);
       setError(null);
     } catch {
       setError("could not load markets");
     }
-  }, [status]);
+  }, [status, sort]);
 
   usePoll(load);
   return { markets, error };
