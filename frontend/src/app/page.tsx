@@ -1,32 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { apiFetch } from "@/lib/api";
-import type { MarketResponse, Page } from "@/lib/types";
+import { useLiveMarkets } from "@/lib/live";
 import ProbabilityBar from "@/components/ProbabilityBar";
 
-const POLL_INTERVAL_MS = 5000;
-
 function MarketList() {
-  const [markets, setMarkets] = useState<MarketResponse[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const page = await apiFetch<Page<MarketResponse>>("/api/markets?status=OPEN&size=50");
-      setMarkets(page.content);
-      setError(null);
-    } catch {
-      setError("could not load markets");
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const timer = setInterval(load, POLL_INTERVAL_MS);
-    return () => clearInterval(timer);
-  }, [load]);
+  const { markets, error } = useLiveMarkets("OPEN");
 
   if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!markets) return <p className="text-sm text-gray-500">Loading markets…</p>;

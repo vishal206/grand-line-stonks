@@ -1,40 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { apiFetch } from "@/lib/api";
-import type { MarketResponse, PricePointResponse } from "@/lib/types";
+import { useLiveMarket } from "@/lib/live";
 import BetForm from "@/components/BetForm";
 import PriceChart from "@/components/PriceChart";
 import ProbabilityBar from "@/components/ProbabilityBar";
 
-const POLL_INTERVAL_MS = 5000;
-
 function MarketDetail() {
   const params = useParams<{ id: string }>();
-  const [market, setMarket] = useState<MarketResponse | null>(null);
-  const [history, setHistory] = useState<PricePointResponse[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const [marketData, historyData] = await Promise.all([
-        apiFetch<MarketResponse>(`/api/markets/${params.id}`),
-        apiFetch<PricePointResponse[]>(`/api/markets/${params.id}/history`),
-      ]);
-      setMarket(marketData);
-      setHistory(historyData);
-      setError(null);
-    } catch {
-      setError("could not load this market");
-    }
-  }, [params.id]);
-
-  useEffect(() => {
-    load();
-    const timer = setInterval(load, POLL_INTERVAL_MS);
-    return () => clearInterval(timer);
-  }, [load]);
+  const { market, history, error, refresh } = useLiveMarket(params.id);
 
   if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!market) return <p className="text-sm text-gray-500">Loading market…</p>;
@@ -53,7 +27,7 @@ function MarketDetail() {
           <h3 className="mb-2 font-semibold text-gray-900">Price history</h3>
           <PriceChart history={history} outcomes={market.outcomes} />
         </div>
-        <BetForm market={market} onPlaced={load} />
+        <BetForm market={market} onPlaced={refresh} />
       </div>
     </div>
   );
