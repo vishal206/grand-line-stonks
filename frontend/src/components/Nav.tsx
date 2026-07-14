@@ -15,7 +15,7 @@ export default function Nav() {
           <Link href="/" className="text-lg font-bold text-violet-700">
             Grand Line Stonks
           </Link>
-          <Link href="/" className="text-sm text-gray-600 hover:text-violet-700">
+          <Link href="/markets" className="text-sm text-gray-600 hover:text-violet-700">
             Markets
           </Link>
           {me && (

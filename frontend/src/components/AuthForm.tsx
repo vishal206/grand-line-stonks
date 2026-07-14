@@ -48,7 +48,7 @@ export default function AuthForm({
     setServerError(null);
     try {
       await onSubmit(values.username, values.password);
-      router.push("/");
+      router.push("/markets");
     } catch (e) {
       setServerError(e instanceof ApiError ? e.message : "something went wrong");
     }
