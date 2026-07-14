@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { RequireAuth, useAuth } from "@/lib/auth";
-import { BerryAmount } from "@/components/Berry";
+import { Berry, BerryAmount } from "@/components/Berry";
+import CountUp from "@/components/fx/CountUp";
+import Reveal from "@/components/fx/Reveal";
 import type { Page, PositionResponse, TransactionHistoryResponse } from "@/lib/types";
 
 const sectionHeading = "mb-3 font-serif text-xs uppercase tracking-caps text-violet";
@@ -15,8 +17,8 @@ function PositionOutcome({ position }: { position: PositionResponse }) {
     return <span className="bg-cloud px-2 py-1 text-xs text-ink/70">Refunded</span>;
   if (position.marketStatus === "SETTLED")
     return position.won ? (
-      <span className="bg-positive/10 px-2 py-1 text-xs font-medium text-positive">
-        Won <BerryAmount value={position.shares} />
+      <span className="border border-positive/30 bg-positive/10 px-2 py-1 text-xs font-medium text-positive shadow-[0_0_14px_rgba(46,125,91,0.3)]">
+        ★ Won <BerryAmount value={position.shares} />
       </span>
     ) : (
       <span className="bg-cloud px-2 py-1 text-xs text-ink/70">Lost</span>
@@ -86,16 +88,23 @@ function Portfolio() {
         <p className="font-serif text-xs uppercase tracking-caps text-ink/50">The war chest</p>
         <h1 className="mt-1 text-2xl font-semibold text-ink">Portfolio</h1>
       </div>
-      <div className="mb-6 border border-ink/10 bg-white p-5">
-        <p className="font-serif text-xs uppercase tracking-caps text-violet">Balance</p>
-        {me ? (
-          <BerryAmount value={me.balance} className="mt-1 text-3xl font-bold text-ink" />
-        ) : (
-          <p className="mt-1 text-3xl font-bold text-ink/40">…</p>
-        )}
-      </div>
+      <Reveal className="mb-6">
+        <div className="border-2 border-ink/15 bg-white p-5 shadow-[5px_5px_0_rgba(59,20,119,0.12)]">
+          <p className="font-serif text-xs uppercase tracking-caps text-violet">Balance</p>
+          {me ? (
+            <span className="mt-1 inline-flex items-baseline gap-[0.15em] font-mono text-3xl font-bold text-ink">
+              <Berry />
+              <CountUp value={me.balance} decimals={2} />
+              <span className="sr-only">berries</span>
+            </span>
+          ) : (
+            <p className="mt-1 text-3xl font-bold text-ink/40">…</p>
+          )}
+        </div>
+      </Reveal>
       {error && <p className="mb-6 text-sm text-negative">{error}</p>}
       <div className="grid items-start gap-6 lg:grid-cols-2">
+        <Reveal delay={0.08}>
         <section className="border border-ink/10 bg-white p-5">
           <h2 className={sectionHeading}>Open positions</h2>
           {!open ? (
@@ -114,6 +123,8 @@ function Portfolio() {
             resolved.map((p) => <PositionRow key={p.positionId} position={p} />)
           )}
         </section>
+        </Reveal>
+        <Reveal delay={0.16}>
         <section className="border border-ink/10 bg-white p-5">
           <h2 className={sectionHeading}>Recent transactions</h2>
           {!transactions ? (
@@ -153,6 +164,7 @@ function Portfolio() {
             </table>
           )}
         </section>
+        </Reveal>
       </div>
     </div>
   );
