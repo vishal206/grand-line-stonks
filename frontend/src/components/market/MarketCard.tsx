@@ -11,10 +11,14 @@ export default function MarketCard({ market, index }: { market: MarketResponse; 
   return (
     <motion.div
       className="relative"
-      initial={reduce ? false : { opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.5, delay: (index % 6) * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0 }
+          : { duration: 0.5, delay: (index % 6) * 0.07, ease: [0.22, 1, 0.36, 1] }
+      }
       whileHover={reduce ? undefined : { y: -5, scale: 1.01 }}
     >
       <Link

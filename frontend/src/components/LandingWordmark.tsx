@@ -20,9 +20,13 @@ export default function LandingWordmark() {
             <span key={line.text} className={`block overflow-hidden whitespace-nowrap ${line.className}`}>
               <motion.span
                 className="block"
-                initial={reduce ? false : { y: "105%" }}
+                initial={{ y: "105%" }}
                 animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: line.delay, ease: [0.16, 1, 0.3, 1] }}
+                transition={
+                  reduce
+                    ? { duration: 0 }
+                    : { duration: 0.9, delay: line.delay, ease: [0.16, 1, 0.3, 1] }
+                }
               >
                 {line.text}
               </motion.span>

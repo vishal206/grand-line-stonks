@@ -16,10 +16,10 @@ export default function ProbabilityBar({ outcomes }: { outcomes: OutcomeResponse
             key={outcome.id}
             className={`rounded-full ${outcome.id === leadingId ? "shadow-glow-sm" : ""}`}
             style={{ backgroundColor: outcomeColor(outcome.idx) }}
-            initial={reduce ? false : { width: "2%" }}
+            initial={{ width: "2%" }}
             whileInView={{ width: `${Math.max(outcome.price * 100, 2)}%` }}
             viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 60, damping: 18 }}
+            transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 60, damping: 18 }}
           />
         ))}
       </div>
