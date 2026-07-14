@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, getToken, setToken } from "./api";
+import Loading from "@/components/Loading";
 import type { AuthResponse, MeResponse } from "./types";
 
 interface AuthContextValue {
@@ -86,7 +87,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   }, [loading, me, router]);
 
   if (loading || !me) {
-    return <div className="p-8 text-center text-gray-500">Loading…</div>;
+    return <Loading label="Checking your papers" className="h-64" />;
   }
   return <>{children}</>;
 }

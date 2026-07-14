@@ -2,13 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  @apply bg-paper font-sans text-ink antialiased;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.halftone {
+  background-image: radial-gradient(rgba(167, 139, 250, 0.4) 1px, transparent 1.5px);
+  background-size: 13px 13px;
+}
+
+.halftone-dense {
+  background-image: radial-gradient(rgba(167, 139, 250, 0.3) 1.5px, transparent 2px);
+  background-size: 9px 9px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-pulse-dot,
+  .animate-drift,
+  .animate-drift-slow {
+    animation: none;
+  }
 }

@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { outcomeColor } from "@/lib/palette";
+import { Berry, BerryAmount } from "@/components/Berry";
+import ImpactBurst from "@/components/fx/ImpactBurst";
 import type { BetResponse, MarketResponse } from "@/lib/types";
 
 const schema = z.object({
@@ -22,11 +25,15 @@ interface BetFormProps {
   onPlaced: () => void;
 }
 
+const heading = "mb-4 font-serif text-xs uppercase tracking-caps text-violet";
+const card = "border border-ink/10 bg-white p-5";
+
 export default function BetForm({ market, onPlaced }: BetFormProps) {
-  const { refreshMe } = useAuth();
+  const { me, loading, refreshMe } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const [lastBet, setLastBet] = useState<BetResponse | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const [burst, setBurst] = useState(0);
   const {
     register,
     handleSubmit,
@@ -42,6 +49,7 @@ export default function BetForm({ market, onPlaced }: BetFormProps) {
         body: JSON.stringify({ ...values, idempotencyKey }),
       });
       setLastBet(bet);
+      setBurst((b) => b + 1);
       setIdempotencyKey(crypto.randomUUID());
       reset();
       await refreshMe();
@@ -51,55 +59,83 @@ export default function BetForm({ market, onPlaced }: BetFormProps) {
     }
   });
 
+  if (!loading && !me) {
+    return (
+      <div className={card}>
+        <h3 className={heading}>Place a bet</h3>
+        <p className="mb-4 text-sm text-ink/70">Log in to bet on this market.</p>
+        <Link
+          href="/login"
+          className="block w-full bg-violet-vivid py-2.5 text-center text-sm font-medium text-paper hover:bg-violet"
+        >
+          Log in
+        </Link>
+        <p className="mt-3 text-center text-sm text-ink/60">
+          New here?{" "}
+          <Link href="/signup" className="text-violet underline-offset-2 hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <form
-      onSubmit={submit}
-      onChange={() => setServerError(null)}
-      className="rounded-lg border border-violet-100 bg-white p-4 shadow-sm"
-    >
-      <h3 className="mb-3 font-semibold text-gray-900">Place a bet</h3>
-      <fieldset className="mb-3 space-y-2">
+    <form onSubmit={submit} onChange={() => setServerError(null)} className={card}>
+      <ImpactBurst burst={burst} />
+      <h3 className={heading}>Place a bet</h3>
+      <fieldset className="mb-4 space-y-2.5">
+        <legend className="sr-only">Outcome</legend>
         {market.outcomes.map((outcome) => (
-          <label key={outcome.id} className="flex items-center gap-2 text-sm text-gray-700">
+          <label key={outcome.id} className="flex items-center gap-2.5 text-sm text-ink">
             <input
               type="radio"
               value={outcome.id}
               {...register("outcomeId")}
-              className="accent-violet-600"
+              className="accent-[#6D28D9]"
             />
             <span
-              className="inline-block h-2 w-2 rounded-full"
+              className="inline-block h-2 w-2"
               style={{ backgroundColor: outcomeColor(outcome.idx) }}
             />
             {outcome.label}
-            <span className="ml-auto text-gray-500">{(outcome.price * 100).toFixed(1)}%</span>
+            <span className="ml-auto font-mono text-sm tabular-nums text-ink/70">
+              {(outcome.price * 100).toFixed(1)}%
+            </span>
           </label>
         ))}
       </fieldset>
-      {errors.outcomeId && <p className="mb-2 text-xs text-red-600">{errors.outcomeId.message}</p>}
-      <label htmlFor="amount" className="mb-1 block text-sm text-gray-600">
-        Amount (berries)
+      {errors.outcomeId && (
+        <p className="mb-3 text-xs text-negative">{errors.outcomeId.message}</p>
+      )}
+      <label htmlFor="amount" className="mb-1.5 flex items-baseline gap-1 text-sm text-ink/70">
+        Amount <Berry className="h-[0.7em] w-auto" />
       </label>
       <input
         id="amount"
         inputMode="decimal"
         placeholder="50"
         {...register("amount")}
-        className="mb-2 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
+        className="mb-3 w-full border border-ink/20 bg-paper px-3 py-2 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-violet-vivid focus:outline-none"
       />
-      {errors.amount && <p className="mb-2 text-xs text-red-600">{errors.amount.message}</p>}
-      {serverError && <p className="mb-2 text-sm text-red-600">{serverError}</p>}
+      {errors.amount && <p className="mb-3 text-xs text-negative">{errors.amount.message}</p>}
+      {serverError && (
+        <p role="alert" className="mb-3 text-sm text-negative">
+          {serverError}
+        </p>
+      )}
       {lastBet && !serverError && (
-        <p className="mb-2 text-sm text-emerald-700">
-          Bought {lastBet.shares.toFixed(4)} shares for {lastBet.amount} ฿
+        <p className="mb-3 text-sm text-positive">
+          Bought <span className="font-mono">{lastBet.shares.toFixed(4)}</span> shares for{" "}
+          <BerryAmount value={lastBet.amount} decimals={4} />
         </p>
       )}
       <button
         type="submit"
         disabled={isSubmitting || market.status !== "OPEN"}
-        className="w-full rounded bg-violet-600 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-50"
+        className="w-full bg-violet-vivid py-2.5 text-sm font-medium text-paper hover:bg-violet disabled:opacity-50"
       >
-        {market.status === "OPEN" ? (isSubmitting ? "Placing…" : "Bet") : "Market not open"}
+        {market.status === "OPEN" ? (isSubmitting ? "Placing…" : "Place bet") : "Market not open"}
       </button>
     </form>
   );
