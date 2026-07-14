@@ -5,6 +5,7 @@ import { useLiveMarket } from "@/lib/live";
 import BetForm from "@/components/BetForm";
 import PriceChart from "@/components/PriceChart";
 import ProbabilityBar from "@/components/ProbabilityBar";
+import ResultHero from "@/components/ResultHero";
 
 function MarketDetail() {
   const params = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ function MarketDetail() {
 
   return (
     <div>
+      <ResultHero market={market} />
       <div className="mb-2 flex items-baseline gap-4">
         <span className="font-serif text-[11px] uppercase tracking-caps text-violet">
           Bounty Nº {market.id}
