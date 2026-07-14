@@ -9,6 +9,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { outcomeColor } from "@/lib/palette";
 import { Berry, BerryAmount } from "@/components/Berry";
+import ImpactBurst from "@/components/fx/ImpactBurst";
 import type { BetResponse, MarketResponse } from "@/lib/types";
 
 const schema = z.object({
@@ -32,6 +33,7 @@ export default function BetForm({ market, onPlaced }: BetFormProps) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [lastBet, setLastBet] = useState<BetResponse | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const [burst, setBurst] = useState(0);
   const {
     register,
     handleSubmit,
@@ -47,6 +49,7 @@ export default function BetForm({ market, onPlaced }: BetFormProps) {
         body: JSON.stringify({ ...values, idempotencyKey }),
       });
       setLastBet(bet);
+      setBurst((b) => b + 1);
       setIdempotencyKey(crypto.randomUUID());
       reset();
       await refreshMe();
@@ -79,6 +82,7 @@ export default function BetForm({ market, onPlaced }: BetFormProps) {
 
   return (
     <form onSubmit={submit} onChange={() => setServerError(null)} className={card}>
+      <ImpactBurst burst={burst} />
       <h3 className={heading}>Place a bet</h3>
       <fieldset className="mb-4 space-y-2.5">
         <legend className="sr-only">Outcome</legend>
