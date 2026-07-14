@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLiveMarkets } from "@/lib/live";
 import ProbabilityBar from "@/components/ProbabilityBar";
 import Loading from "@/components/Loading";
+import Ticker from "@/components/market/Ticker";
 
 function MarketList() {
   const { markets, error } = useLiveMarkets("OPEN");
@@ -41,9 +42,16 @@ function MarketList() {
   );
 }
 
+function LiveTicker() {
+  const { markets } = useLiveMarkets("OPEN");
+  if (!markets) return null;
+  return <Ticker markets={markets} />;
+}
+
 export default function MarketsPage() {
   return (
     <>
+      <LiveTicker />
       <div className="mb-8">
         <p className="font-serif text-xs uppercase tracking-caps text-ink/50">The bounty board</p>
         <h1 className="mt-1 text-2xl font-semibold text-ink">Open markets</h1>
